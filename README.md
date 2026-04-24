@@ -1,4 +1,4 @@
-# PlaceReady
+# Apex
 
 A full-stack web application built with the MERN stack.
 
@@ -15,7 +15,7 @@ A full-stack web application built with the MERN stack.
 ## Project Structure
 
 ```
-PlaceReady/
+Apex/
 ├── client/          # React frontend (Vite)
 │   └── src/
 │       ├── pages/
@@ -42,13 +42,8 @@ PlaceReady/
 ### Installation
 
 ```bash
-# Install server dependencies
-cd server
-npm install
-
-# Install client dependencies
-cd ../client
-npm install
+# Install all dependencies (root, client, and server)
+npm run install-all
 ```
 
 ### Environment Variables
@@ -58,13 +53,8 @@ Copy `.env.example` to `server/.env` and fill in the values.
 ### Running the App
 
 ```bash
-# Start the backend
-cd server
-npm run dev
-
-# Start the frontend (in a separate terminal)
-cd client
-npm run dev
+# Start both frontend and backend concurrently
+npm start
 ```
 
 ## API

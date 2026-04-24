@@ -38,7 +38,7 @@ const DashboardLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const pageTitle = pageTitles[location.pathname] || "PlaceReady";
+  const pageTitle = pageTitles[location.pathname] || "Apex";
   const initials = user?.name
     ? user.name
         .split(" ")
@@ -61,8 +61,8 @@ const DashboardLayout = () => {
       <aside className="dash-sidebar">
         <div className="sidebar-top">
           <div className="sidebar-brand">
-            <span className="brand-icon">P</span>
-            <span className="brand-text">PlaceReady</span>
+            <span className="brand-icon">A</span>
+            <span className="brand-text">Apex</span>
           </div>
 
           <nav className="sidebar-nav">
@@ -105,8 +105,8 @@ const DashboardLayout = () => {
       <aside className={`mobile-drawer ${drawerOpen ? "mobile-drawer--open" : ""}`}>
         <div className="drawer-header">
           <div className="sidebar-brand">
-            <span className="brand-icon">P</span>
-            <span className="brand-text">PlaceReady</span>
+            <span className="brand-icon">A</span>
+            <span className="brand-text">Apex</span>
           </div>
           <button className="drawer-close" onClick={closeMobileDrawer}>
             <X size={22} />

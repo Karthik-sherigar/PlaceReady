@@ -1,7 +1,7 @@
 {
-  "name": "placeready-server",
+  "name": "apex-server",
   "version": "1.0.0",
-  "description": "PlaceReady backend API server",
+  "description": "Apex backend API server",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

@@ -40,7 +40,7 @@ const LoginPage = () => {
         <div className="auth-glow"></div>
         <div className="auth-card">
           <div className="auth-header">
-            <h1 className="auth-logo">PlaceReady</h1>
+            <h1 className="auth-logo">Apex</h1>
             <p className="auth-subtitle">Welcome back</p>
           </div>
 

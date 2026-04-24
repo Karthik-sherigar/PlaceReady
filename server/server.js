@@ -16,6 +16,7 @@ connectDB();
 
 // Routes
 app.use("/api/health", require("./routes/healthRoutes"));
+app.use("/api/auth", require("./routes/authRoutes"));
 
 const PORT = process.env.PORT || 5000;
 

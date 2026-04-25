@@ -1,5 +1,7 @@
+import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { getLatestScore } from "../services/diagnosticService";
 import {
   ClipboardList,
   Map,
@@ -124,7 +126,35 @@ const CircularProgress = ({ score, size = 160, strokeWidth = 10 }) => {
 const DashboardOverview = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const status = getScoreStatus(MOCK_SCORE);
+  
+  const [scoreData, setScoreData] = useState({
+    overall: MOCK_SCORE,
+    skills: skills,
+  });
+
+  useEffect(() => {
+    const fetchScore = async () => {
+      try {
+        const data = await getLatestScore();
+        if (data) {
+          setScoreData({
+            overall: data.overallScore,
+            skills: [
+              { name: "Aptitude", score: Math.round(data.aptitudeScore), max: 100 },
+              { name: "DSA", score: Math.round(data.dsaScore), max: 100 },
+              { name: "Communication", score: Math.round(data.communicationScore), max: 100 },
+            ],
+          });
+        }
+      } catch (err) {
+        // Silently fail to mock data if no real score exists yet
+        console.log("No previous diagnostic score found, using mock data.");
+      }
+    };
+    fetchScore();
+  }, []);
+
+  const status = getScoreStatus(scoreData.overall);
 
   return (
     <div className="overview">
@@ -141,7 +171,7 @@ const DashboardOverview = () => {
 
       {/* ── 2. Readiness Score ── */}
       <section className="overview-score-card">
-        <CircularProgress score={MOCK_SCORE} />
+        <CircularProgress score={scoreData.overall} />
         <div className="score-info">
           <h2 className="score-heading">Overall Readiness Score</h2>
           <span className={`score-status ${status.cls}`}>{status.label}</span>
@@ -152,7 +182,7 @@ const DashboardOverview = () => {
       <section className="overview-skills">
         <h3 className="section-title">Skill Snapshot</h3>
         <div className="skills-grid">
-          {skills.map((s) => {
+          {scoreData.skills.map((s) => {
             const level = getSkillLevel(s.score);
             return (
               <div key={s.name} className="skill-card">

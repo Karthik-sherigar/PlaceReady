@@ -1,17 +1,25 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
-import { linkCollege } from "../services/authService";
+import { linkCollege, updateProfile } from "../services/authService";
 import { getDiagnosticHistory } from "../services/diagnosticService";
-import { CheckCircle2, AlertCircle, Clock } from "lucide-react";
+import { CheckCircle2, AlertCircle, Clock, X, Check } from "lucide-react";
 import "./ProfilePage.css";
 
 const ProfilePage = () => {
-  const { user, updateUserCollege } = useAuth();
+  const { user, updateUserCollege, updateProfileData } = useAuth();
   
   const [inviteCode, setInviteCode] = useState("");
   const [linkError, setLinkError] = useState("");
   const [linkSuccess, setLinkSuccess] = useState("");
   const [isLinking, setIsLinking] = useState(false);
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [editData, setEditData] = useState({
+    name: user?.name || "",
+    branch: user?.branch || "",
+    targetRole: user?.targetRole || ""
+  });
+  const [isSaving, setIsSaving] = useState(false);
   
   const [history, setHistory] = useState([]);
   const [loadingHistory, setLoadingHistory] = useState(true);
@@ -52,6 +60,24 @@ const ProfilePage = () => {
     }
   };
 
+  const handleSaveProfile = async () => {
+    setIsSaving(true);
+    try {
+      const updatedUser = await updateProfile(editData);
+      updateProfileData({
+        name: updatedUser.name,
+        branch: updatedUser.branch,
+        targetRole: updatedUser.targetRole
+      });
+      setIsEditing(false);
+    } catch (err) {
+      console.error("Failed to update profile", err);
+      alert("Failed to update profile.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div className="profile-container">
       <h2>Profile Settings</h2>
@@ -60,24 +86,41 @@ const ProfilePage = () => {
       <section className="profile-section">
         <div className="section-header">
           <h3>Personal Information</h3>
-          <button className="edit-btn" title="Coming Soon">Edit</button>
+          {!isEditing ? (
+            <button className="edit-btn" onClick={() => setIsEditing(true)}>Edit</button>
+          ) : (
+            <div style={{ display: "flex", gap: "8px" }}>
+              <button className="edit-btn" onClick={() => setIsEditing(false)} style={{ background: "#f1f5f9", color: "var(--navy)" }} disabled={isSaving}>
+                <X size={16} /> Cancel
+              </button>
+              <button className="edit-btn" onClick={handleSaveProfile} disabled={isSaving} style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                <Check size={16} /> {isSaving ? "Saving..." : "Save"}
+              </button>
+            </div>
+          )}
         </div>
         <div className="info-grid">
           <div className="info-item">
             <span className="info-label">Full Name</span>
-            <span className="info-value">{user?.name}</span>
+            {!isEditing ? <span className="info-value">{user?.name}</span> : (
+              <input type="text" className="profile-input" value={editData.name} onChange={e => setEditData({...editData, name: e.target.value})} />
+            )}
           </div>
           <div className="info-item">
             <span className="info-label">Email</span>
-            <span className="info-value">{user?.email}</span>
+            <span className="info-value" style={{ color: "var(--text-muted)" }}>{user?.email} (Cannot be changed)</span>
           </div>
           <div className="info-item">
             <span className="info-label">Branch</span>
-            <span className="info-value">{user?.branch || "Not specified"}</span>
+            {!isEditing ? <span className="info-value">{user?.branch || "Not specified"}</span> : (
+              <input type="text" className="profile-input" value={editData.branch} onChange={e => setEditData({...editData, branch: e.target.value})} placeholder="e.g. Computer Science" />
+            )}
           </div>
           <div className="info-item">
             <span className="info-label">Target Role</span>
-            <span className="info-value">{user?.targetRole || "Not specified"}</span>
+            {!isEditing ? <span className="info-value">{user?.targetRole || "Not specified"}</span> : (
+              <input type="text" className="profile-input" value={editData.targetRole} onChange={e => setEditData({...editData, targetRole: e.target.value})} placeholder="e.g. Frontend Developer" />
+            )}
           </div>
         </div>
       </section>

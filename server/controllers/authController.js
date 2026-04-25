@@ -4,7 +4,7 @@ const Admin = require("../models/Admin");
 
 // Generate JWT
 const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+  return jwt.sign({ id, role: "student" }, process.env.JWT_SECRET, { expiresIn: "7d" });
 };
 
 // @desc    Register a new user
@@ -178,4 +178,34 @@ const linkCollege = async (req, res) => {
   }
 };
 
-module.exports = { register, login, getMe, linkCollege };
+// @desc    Update user profile
+// @route   PUT /api/auth/profile
+// @access  Private
+const updateProfile = async (req, res) => {
+  try {
+    const { name, branch, targetRole } = req.body;
+    const user = await User.findById(req.user._id);
+
+    if (name) user.name = name;
+    if (branch) user.branch = branch;
+    if (targetRole) user.targetRole = targetRole;
+
+    await user.save();
+
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      branch: user.branch,
+      targetRole: user.targetRole,
+      collegeId: user.collegeId,
+      collegeName: user.collegeName,
+      inviteCode: user.inviteCode,
+      createdAt: user.createdAt,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+module.exports = { register, login, getMe, linkCollege, updateProfile };

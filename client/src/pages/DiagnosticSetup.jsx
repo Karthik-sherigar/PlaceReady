@@ -15,6 +15,7 @@ const DiagnosticSetup = () => {
   const analyserRef = useRef(null);
   const dataArrayRef = useRef(null);
   const rafIdRef = useRef(null);
+  const streamRef = useRef(null);
   const [audioLevel, setAudioLevel] = useState(0);
 
   // 1. Browser Check
@@ -41,6 +42,7 @@ const DiagnosticSetup = () => {
     const initMedia = async () => {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        streamRef.current = stream;
         
         // Video
         if (videoRef.current) {
@@ -87,6 +89,9 @@ const DiagnosticSetup = () => {
       if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
       if (audioContextRef.current && audioContextRef.current.state !== "closed") {
         audioContextRef.current.close();
+      }
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
       }
     };
   }, []);

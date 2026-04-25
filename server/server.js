@@ -20,10 +20,13 @@ app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/admin/auth", require("./routes/adminAuthRoutes"));
 app.use("/api/admin/companies", require("./routes/adminCompanyRoutes"));
 app.use("/api/admin/stats", require("./routes/adminStatsRoutes"));
+app.use("/api/admin/students", require("./routes/adminStudentsRoutes"));
 app.use("/api/companies", require("./routes/studentCompanyRoutes"));
 app.use("/api/diagnostic", require("./routes/diagnosticRoutes"));
 app.use("/api/proctor", require("./routes/proctorRoutes"));
 app.use("/api/gap-analysis", require("./routes/gapAnalysisRoutes"));
+app.use("/api/roadmap", require("./routes/roadmapRoutes"));
+app.use("/api/interview", require("./routes/interviewRoutes"));
 
 const PORT = process.env.PORT || 5000;
 

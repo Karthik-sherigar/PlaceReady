@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { getLatestScore } from "../services/diagnosticService";
+import { getGapAnalysisData } from "../services/gapAnalysisService";
+import axios from "axios";
 import {
   ClipboardList,
   Map,
@@ -13,36 +15,6 @@ import {
   Zap,
 } from "lucide-react";
 import "./DashboardOverview.css";
-
-/* ── Mock Data ── */
-const MOCK_SCORE = 62;
-
-const skills = [
-  { name: "Aptitude", score: 70, max: 100 },
-  { name: "DSA", score: 55, max: 100 },
-  { name: "Communication", score: 60, max: 100 },
-];
-
-const readyCompanies = ["TCS", "Wipro", "Infosys"];
-const almostCompanies = ["Cognizant", "Capgemini"];
-
-const activities = [
-  {
-    icon: ClipboardList,
-    text: "Diagnostic test completed",
-    time: "2 days ago",
-  },
-  {
-    icon: Route,
-    text: "Roadmap generated",
-    time: "2 days ago",
-  },
-  {
-    icon: Mic,
-    text: "Mock interview attempted",
-    time: "Yesterday",
-  },
-];
 
 /* ── Helpers ── */
 const getScoreStatus = (score) => {
@@ -128,31 +100,75 @@ const DashboardOverview = () => {
   const navigate = useNavigate();
   
   const [scoreData, setScoreData] = useState({
-    overall: MOCK_SCORE,
-    skills: skills,
+    overall: 0,
+    skills: [
+      { name: "Aptitude", score: 0, max: 100 },
+      { name: "DSA", score: 0, max: 100 },
+      { name: "Communication", score: 0, max: 100 },
+    ],
+    hasDiagnostic: false,
   });
   const [dismissBanner, setDismissBanner] = useState(false);
+  const [readyCompanies, setReadyCompanies] = useState([]);
+  const [almostCompanies, setAlmostCompanies] = useState([]);
+  const [activities, setActivities] = useState([]);
 
   useEffect(() => {
-    const fetchScore = async () => {
+    const fetchData = async () => {
+      // 1. Fetch diagnostic score
       try {
         const data = await getLatestScore();
         if (data) {
           setScoreData({
             overall: data.overallScore,
+            hasDiagnostic: true,
             skills: [
               { name: "Aptitude", score: Math.round(data.aptitudeScore), max: 100 },
               { name: "DSA", score: Math.round(data.dsaScore), max: 100 },
               { name: "Communication", score: Math.round(data.communicationScore), max: 100 },
             ],
           });
+
+          // Build activity entry for diagnostic
+          const newActivities = [
+            { icon: ClipboardList, text: "Diagnostic test completed", time: new Date(data.attemptedAt).toLocaleDateString() }
+          ];
+
+          // 2. Fetch roadmap
+          try {
+            const token = localStorage.getItem("token");
+            const rmRes = await axios.get("/api/roadmap", { headers: { Authorization: `Bearer ${token}` } });
+            if (rmRes.data) {
+              newActivities.push({ icon: Route, text: "Roadmap generated", time: new Date(rmRes.data.createdAt).toLocaleDateString() });
+            }
+          } catch (_) { /* no roadmap yet */ }
+
+          // 3. Fetch recent interviews
+          try {
+            const token = localStorage.getItem("token");
+            const ivRes = await axios.get("/api/interview", { headers: { Authorization: `Bearer ${token}` } });
+            if (ivRes.data && ivRes.data.length > 0) {
+              newActivities.push({ icon: Mic, text: "Mock interview attempted", time: new Date(ivRes.data[0].createdAt).toLocaleDateString() });
+            }
+          } catch (_) { /* no interviews yet */ }
+
+          setActivities(newActivities);
         }
       } catch (err) {
-        // Silently fail to mock data if no real score exists yet
-        console.log("No previous diagnostic score found, using mock data.");
+        console.log("No diagnostic score yet.");
       }
+
+      // 4. Fetch gap analysis for company readiness
+      try {
+        const gapData = await getGapAnalysisData();
+        if (gapData && gapData.companies) {
+          setReadyCompanies(gapData.companies.filter(c => c.status === "Ready").map(c => c.name));
+          setAlmostCompanies(gapData.companies.filter(c => c.status === "Almost Ready").map(c => c.name));
+        }
+      } catch (_) { /* no gap data yet */ }
     };
-    fetchScore();
+
+    fetchData();
   }, []);
 
   const status = getScoreStatus(scoreData.overall);
@@ -239,33 +255,45 @@ const DashboardOverview = () => {
           Company Readiness
         </h3>
 
-        <div className="company-group">
-          <p className="company-label">Ready for</p>
-          <div className="company-badges">
-            {readyCompanies.map((c) => (
-              <span key={c} className="company-badge company-badge--ready">
-                <CheckCircle2 size={14} />
-                {c}
-              </span>
-            ))}
-          </div>
-        </div>
+        {!user?.collegeId ? (
+          <p style={{ color: "var(--text-muted)", fontSize: "14px" }}>Link your college in Profile to see company readiness data.</p>
+        ) : !scoreData.hasDiagnostic ? (
+          <p style={{ color: "var(--text-muted)", fontSize: "14px" }}>Take the Diagnostic Test to see which companies you are ready for.</p>
+        ) : (
+          <>
+            <div className="company-group">
+              <p className="company-label">Ready for</p>
+              <div className="company-badges">
+                {readyCompanies.length === 0 ? (
+                  <span style={{ fontSize: "13px", color: "var(--text-muted)" }}>No companies at Ready level yet. Keep practicing!</span>
+                ) : readyCompanies.map((c) => (
+                  <span key={c} className="company-badge company-badge--ready">
+                    <CheckCircle2 size={14} />
+                    {c}
+                  </span>
+                ))}
+              </div>
+            </div>
 
-        <div className="company-group">
-          <p className="company-label">Almost there</p>
-          <div className="company-badges">
-            {almostCompanies.map((c) => (
-              <span
-                key={c}
-                className="company-badge company-badge--almost"
-                title="Meet their benchmark"
-              >
-                <TrendingUp size={14} />
-                {c}
-              </span>
-            ))}
-          </div>
-        </div>
+            <div className="company-group">
+              <p className="company-label">Almost there</p>
+              <div className="company-badges">
+                {almostCompanies.length === 0 ? (
+                  <span style={{ fontSize: "13px", color: "var(--text-muted)" }}>No companies in the "Almost Ready" range.</span>
+                ) : almostCompanies.map((c) => (
+                  <span
+                    key={c}
+                    className="company-badge company-badge--almost"
+                    title="Meet their benchmark"
+                  >
+                    <TrendingUp size={14} />
+                    {c}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
       </section>
 
       {/* ── 5. Quick Actions ── */}
@@ -290,7 +318,9 @@ const DashboardOverview = () => {
       <section className="overview-activity">
         <h3 className="section-title">Recent Activity</h3>
         <div className="activity-list">
-          {activities.map((a, i) => (
+          {activities.length === 0 ? (
+            <p style={{ color: "var(--text-muted)", fontSize: "14px" }}>No activity yet. Take the diagnostic test to get started!</p>
+          ) : activities.map((a, i) => (
             <div key={i} className="activity-item">
               <div className="activity-icon">
                 <a.icon size={16} strokeWidth={2} />

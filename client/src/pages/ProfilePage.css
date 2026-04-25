@@ -76,6 +76,22 @@
   font-weight: 500;
 }
 
+.profile-input {
+  padding: 6px 12px;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  width: 100%;
+  max-width: 300px;
+  font-family: inherit;
+  color: var(--text-primary);
+}
+
+.profile-input:focus {
+  border-color: var(--emerald);
+  outline: none;
+}
+
 /* College Linking */
 .linked-card {
   display: flex;

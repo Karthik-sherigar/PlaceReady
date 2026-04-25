@@ -1,0 +1,33 @@
+.admin-reports-page {
+  padding: 24px;
+}
+
+.reports-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 768px) {
+  .reports-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.report-card {
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+}
+
+.report-card h3 {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  color: var(--navy);
+  font-weight: 600;
+}
+
+.chart-container {
+  width: 100%;
+}

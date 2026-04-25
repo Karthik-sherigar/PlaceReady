@@ -1,0 +1,84 @@
+.admin-students-page {
+  padding: 24px;
+}
+
+.admin-page-header {
+  margin-bottom: 24px;
+}
+
+.admin-page-title {
+  font-size: 24px;
+  color: var(--navy);
+  margin: 0 0 8px 0;
+}
+
+.admin-page-subtitle {
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.students-table-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+  overflow: hidden;
+}
+
+.students-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.students-table th,
+.students-table td {
+  padding: 16px;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.students-table th {
+  background: #f8fafc;
+  font-weight: 600;
+  color: var(--navy);
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+}
+
+.students-table tr:last-child td {
+  border-bottom: none;
+}
+
+.students-table tr:hover {
+  background: #f8fafc;
+}
+
+.score-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.score-high {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.score-medium {
+  background: #fef9c3;
+  color: #854d0e;
+}
+
+.score-low {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.score-none {
+  background: #f1f5f9;
+  color: #64748b;
+}

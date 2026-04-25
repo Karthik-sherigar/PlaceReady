@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:5000/api/diagnostic";
+const API_URL = "/api/diagnostic";
 
 // Get questions
 export const getDiagnosticQuestions = async () => {
@@ -41,7 +41,7 @@ export const getDiagnosticHistory = async () => {
 // Submit proctoring report
 export const submitProctoringReport = async (reportData) => {
   const token = localStorage.getItem("token");
-  const response = await axios.post(`http://localhost:5000/api/proctor/report`, reportData, {
+  const response = await axios.post(`/api/proctor/report`, reportData, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return response.data;
@@ -50,7 +50,7 @@ export const submitProctoringReport = async (reportData) => {
 // Get proctoring report
 export const getProctoringReport = async (diagnosticResultId) => {
   const token = localStorage.getItem("token");
-  const response = await axios.get(`http://localhost:5000/api/proctor/report/${diagnosticResultId}`, {
+  const response = await axios.get(`/api/proctor/report/${diagnosticResultId}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return response.data;

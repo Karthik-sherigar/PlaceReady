@@ -12,6 +12,7 @@ const DiagnosticLayout = () => {
   const isReport = location.pathname.includes("report");
   
   const videoRef = useRef(null);
+  const proctoringStreamRef = useRef(null);
   const [warning, setWarning] = useState(null);
 
   const { resetDiagnostic } = useDiagnostic();
@@ -24,6 +25,7 @@ const DiagnosticLayout = () => {
     const initHiddenStream = async () => {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        proctoringStreamRef.current = stream;
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
         }
@@ -58,8 +60,14 @@ const DiagnosticLayout = () => {
 
     return () => {
       proctorManager.stop();
+      // Stop proctoring camera stream tracks
+      if (proctoringStreamRef.current) {
+        proctoringStreamRef.current.getTracks().forEach(track => track.stop());
+        proctoringStreamRef.current = null;
+      }
       if (videoRef.current && videoRef.current.srcObject) {
         videoRef.current.srcObject.getTracks().forEach(track => track.stop());
+        videoRef.current.srcObject = null;
       }
     };
   }, [isSetup, isReport]);

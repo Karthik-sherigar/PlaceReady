@@ -11,9 +11,10 @@ const generateInviteCode = () => {
   return code;
 };
 
-// Generate JWT using ADMIN_JWT_SECRET
+// Generate JWT using ADMIN_JWT_SECRET with fallback to prevent overlap
 const generateAdminToken = (id) => {
-  return jwt.sign({ id }, process.env.ADMIN_JWT_SECRET, { expiresIn: "7d" });
+  const secret = process.env.ADMIN_JWT_SECRET || (process.env.JWT_SECRET + "_admin");
+  return jwt.sign({ id, role: "admin" }, secret, { expiresIn: "7d" });
 };
 
 // @desc    Register a new admin (college)

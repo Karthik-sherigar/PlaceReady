@@ -1,0 +1,130 @@
+.interview-page {
+  padding: 24px;
+  height: calc(100vh - 100px);
+  display: flex;
+  flex-direction: column;
+}
+
+.interview-header {
+  margin-bottom: 24px;
+}
+
+.interview-title {
+  font-size: 24px;
+  color: var(--navy);
+  margin: 0 0 8px 0;
+}
+
+.interview-subtitle {
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.chat-container {
+  flex: 1;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.chat-messages {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.chat-message {
+  max-width: 80%;
+  padding: 12px 16px;
+  border-radius: 8px;
+  line-height: 1.5;
+}
+
+.chat-message.model {
+  align-self: flex-start;
+  background: #f1f5f9;
+  color: var(--navy);
+  border-bottom-left-radius: 0;
+}
+
+.chat-message.user {
+  align-self: flex-end;
+  background: var(--emerald);
+  color: white;
+  border-bottom-right-radius: 0;
+}
+
+.chat-input-container {
+  padding: 16px;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  gap: 12px;
+  background: #f8fafc;
+}
+
+.chat-input {
+  flex: 1;
+  padding: 12px 16px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  outline: none;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.chat-input:focus {
+  border-color: var(--emerald);
+}
+
+.send-btn {
+  background: var(--emerald);
+  color: white;
+  border: none;
+  padding: 0 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.send-btn:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+}
+
+.interview-setup {
+  background: white;
+  border-radius: 8px;
+  padding: 40px;
+  text-align: center;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+}
+
+.start-btn {
+  background: var(--emerald);
+  color: white;
+  border: none;
+  padding: 12px 32px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 24px;
+}
+
+.end-interview-btn {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  margin-left: 16px;
+}

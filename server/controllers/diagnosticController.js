@@ -51,7 +51,7 @@ const calculateMCQScore = (userAnswers, questions) => {
 const evaluateCommunication = async (userAnswers) => {
   // userAnswers is expected to be an object: { [promptId]: "Student answer text..." }
   let totalScore = 0;
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-preview-04-17" });
 
   for (const prompt of communicationPrompts) {
     const answer = userAnswers[prompt.id];

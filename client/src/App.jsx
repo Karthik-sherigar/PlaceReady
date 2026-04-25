@@ -26,6 +26,8 @@ import AdminLoginPage from "./pages/admin/AdminLoginPage";
 import AdminRegisterPage from "./pages/admin/AdminRegisterPage";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminCompanies from "./pages/admin/AdminCompanies";
+import AdminStudents from "./pages/admin/AdminStudents";
+import AdminReports from "./pages/admin/AdminReports";
 
 import LandingPage from "./pages/LandingPage";
 
@@ -60,8 +62,8 @@ function App() {
               <Route index element={<Navigate to="dashboard" replace />} />
               <Route path="dashboard" element={<AdminDashboard />} />
               <Route path="companies" element={<AdminCompanies />} />
-              <Route path="students" element={<div>Students Page (Coming Soon)</div>} />
-              <Route path="reports" element={<div>Reports Page (Coming Soon)</div>} />
+              <Route path="students" element={<AdminStudents />} />
+              <Route path="reports" element={<AdminReports />} />
             </Route>
 
             {/* Diagnostic Test routes (no sidebar, with Context) */}

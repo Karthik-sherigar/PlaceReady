@@ -131,6 +131,7 @@ const DashboardOverview = () => {
     overall: MOCK_SCORE,
     skills: skills,
   });
+  const [dismissBanner, setDismissBanner] = useState(false);
 
   useEffect(() => {
     const fetchScore = async () => {
@@ -158,6 +159,30 @@ const DashboardOverview = () => {
 
   return (
     <div className="overview">
+      {!user?.collegeId && !dismissBanner && (
+        <div style={{
+          background: "#fffbeb",
+          color: "#b45309",
+          padding: "16px",
+          borderRadius: "8px",
+          border: "1px solid #fde68a",
+          marginBottom: "24px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center"
+        }}>
+          <div>
+            <strong>🔗 Your account is not linked to a college yet.</strong> Enter your invite code in Profile Settings to unlock Gap Analysis and company benchmarks.
+          </div>
+          <button 
+            onClick={() => setDismissBanner(true)}
+            style={{ background: "transparent", border: "none", color: "#b45309", cursor: "pointer", fontWeight: "bold" }}
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       {/* ── 1. Welcome Banner ── */}
       <section className="overview-banner">
         <div className="banner-left">
@@ -247,7 +272,7 @@ const DashboardOverview = () => {
       <section className="overview-actions">
         <button
           className="action-btn action-btn--primary"
-          onClick={() => navigate("/diagnostic")}
+          onClick={() => navigate("/diagnostic/setup")}
         >
           <Zap size={18} strokeWidth={2} />
           Take Diagnostic Test

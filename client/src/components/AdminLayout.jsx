@@ -1,60 +1,49 @@
 import { useState } from "react";
 import { NavLink, Outlet, useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useAdminAuth } from "../context/AdminAuthContext";
 import {
   LayoutDashboard,
-  ClipboardList,
-  BarChart2,
-  Map,
-  Mic,
-  TrendingUp,
-  User as UserIcon,
-  Bell,
+  Building2,
+  Users,
+  FileText,
   LogOut,
   Menu,
   X,
-  Building,
 } from "lucide-react";
 
 const navItems = [
-  { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { path: "/diagnostic", label: "Diagnostic Test", icon: ClipboardList },
-  { path: "/gap-analysis", label: "Gap Analysis", icon: BarChart2 },
-  { path: "/companies", label: "Companies", icon: Building },
-  { path: "/roadmap", label: "Roadmap", icon: Map },
-  { path: "/mock-interview", label: "Mock Interview", icon: Mic },
-  { path: "/progress", label: "Progress Tracker", icon: TrendingUp },
-  { path: "/profile", label: "Profile", icon: UserIcon },
+  { path: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { path: "/admin/companies", label: "Companies", icon: Building2 },
+  { path: "/admin/students", label: "Students", icon: Users },
+  { path: "/admin/reports", label: "Reports", icon: FileText },
 ];
 
 const pageTitles = {
-  "/dashboard": "Dashboard Overview",
-  "/diagnostic": "Diagnostic Test",
-  "/gap-analysis": "Gap Analysis",
-  "/roadmap": "Roadmap",
-  "/mock-interview": "Mock Interview",
-  "/progress": "Progress Tracker",
+  "/admin/dashboard": "Admin Dashboard",
+  "/admin/companies": "Manage Companies",
+  "/admin/students": "Manage Students",
+  "/admin/reports": "Reports",
 };
 
-const DashboardLayout = () => {
+const AdminLayout = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const { user, logout } = useAuth();
+  const { admin, logoutAdmin } = useAdminAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
-  const pageTitle = pageTitles[location.pathname] || "Apex";
-  const initials = user?.name
-    ? user.name
+  const pageTitle = pageTitles[location.pathname] || "Admin Portal";
+  const initials = admin?.collegeName
+    ? admin.collegeName
         .split(" ")
         .map((n) => n[0])
         .join("")
         .toUpperCase()
         .slice(0, 2)
-    : "U";
+    : "AD";
 
   const handleLogout = () => {
-    logout();
-    navigate("/login");
+    logoutAdmin();
+    navigate("/admin/login");
   };
 
   const closeMobileDrawer = () => setDrawerOpen(false);
@@ -65,8 +54,11 @@ const DashboardLayout = () => {
       <aside className="dash-sidebar">
         <div className="sidebar-top">
           <div className="sidebar-brand">
-            <span className="brand-icon">A</span>
-            <span className="brand-text">Apex</span>
+            <span className="brand-icon">PR</span>
+            <span className="brand-text">PlaceReady</span>
+          </div>
+          <div style={{ padding: "0 24px", marginBottom: "20px", fontSize: "12px", color: "var(--emerald)", textTransform: "uppercase", fontWeight: "bold" }}>
+            Admin Portal
           </div>
 
           <nav className="sidebar-nav">
@@ -89,11 +81,11 @@ const DashboardLayout = () => {
           <div className="sidebar-user">
             <div className="user-avatar">{initials}</div>
             <div className="user-info">
-              <span className="user-name">{user?.name || "User"}</span>
-              <span className="user-email">{user?.email || ""}</span>
+              <span className="user-name" title={admin?.name}>{admin?.name || "Admin"}</span>
+              <span className="user-email" title={admin?.collegeName}>{admin?.collegeName || ""}</span>
             </div>
           </div>
-          <button id="sidebar-logout" className="sidebar-logout" onClick={handleLogout}>
+          <button className="sidebar-logout" onClick={handleLogout}>
             <LogOut size={18} strokeWidth={1.8} />
             <span>Logout</span>
           </button>
@@ -109,12 +101,15 @@ const DashboardLayout = () => {
       <aside className={`mobile-drawer ${drawerOpen ? "mobile-drawer--open" : ""}`}>
         <div className="drawer-header">
           <div className="sidebar-brand">
-            <span className="brand-icon">A</span>
-            <span className="brand-text">Apex</span>
+            <span className="brand-icon">PR</span>
+            <span className="brand-text">PlaceReady</span>
           </div>
           <button className="drawer-close" onClick={closeMobileDrawer}>
             <X size={22} />
           </button>
+        </div>
+        <div style={{ padding: "0 24px", marginBottom: "20px", fontSize: "12px", color: "var(--emerald)", textTransform: "uppercase", fontWeight: "bold" }}>
+            Admin Portal
         </div>
 
         <nav className="sidebar-nav">
@@ -137,8 +132,8 @@ const DashboardLayout = () => {
           <div className="sidebar-user">
             <div className="user-avatar">{initials}</div>
             <div className="user-info">
-              <span className="user-name">{user?.name || "User"}</span>
-              <span className="user-email">{user?.email || ""}</span>
+              <span className="user-name">{admin?.name || "Admin"}</span>
+              <span className="user-email">{admin?.collegeName || ""}</span>
             </div>
           </div>
           <button className="sidebar-logout" onClick={handleLogout}>
@@ -164,11 +159,7 @@ const DashboardLayout = () => {
           </div>
 
           <div className="topbar-right">
-            <span className="topbar-user-name">{user?.name || "User"}</span>
-            <button className="topbar-bell" aria-label="Notifications">
-              <Bell size={20} strokeWidth={1.8} />
-              <span className="bell-dot"></span>
-            </button>
+            <span className="topbar-user-name">{admin?.collegeName || "College Admin"}</span>
           </div>
         </header>
 
@@ -181,4 +172,4 @@ const DashboardLayout = () => {
   );
 };
 
-export default DashboardLayout;
+export default AdminLayout;

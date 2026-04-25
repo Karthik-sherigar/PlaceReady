@@ -9,6 +9,7 @@ const RegisterPage = () => {
     password: "",
     branch: "",
     targetRole: "",
+    inviteCode: "",
   });
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -48,10 +49,10 @@ const RegisterPage = () => {
     <div className="auth-page">
       <div className="auth-container">
         <div className="auth-glow"></div>
-        <div className="auth-card">
+        <div className="auth-card" style={{ maxWidth: "480px" }}>
           <div className="auth-header">
-            <h1 className="auth-logo">Apex</h1>
-            <p className="auth-subtitle">Create your account</p>
+            <h1 className="auth-logo">PlaceReady</h1>
+            <p className="auth-subtitle">Create your student account</p>
           </div>
 
           {error && <div className="auth-error">{error}</div>}
@@ -116,6 +117,21 @@ const RegisterPage = () => {
                   onKeyDown={handleKeyDown}
                 />
               </div>
+            </div>
+
+            <div className="input-group" style={{ marginTop: "8px" }}>
+              <label htmlFor="register-invite">College Invite Code (optional)</label>
+              <input
+                id="register-invite"
+                type="text"
+                placeholder="Enter code from your placement cell e.g. SRN001"
+                value={formData.inviteCode}
+                onChange={(e) => handleChange("inviteCode", e.target.value.toUpperCase())}
+                onKeyDown={handleKeyDown}
+              />
+              <p style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: "4px" }}>
+                Don't have a code? You can still register and add it later.
+              </p>
             </div>
 
             <button

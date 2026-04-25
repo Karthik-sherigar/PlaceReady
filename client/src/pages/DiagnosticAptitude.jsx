@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useDiagnostic } from "../context/DiagnosticContext";
 import { getDiagnosticQuestions } from "../services/diagnosticService";
 import { Timer } from "lucide-react";
+import { proctorManager } from "../utils/ProctoringManager";
 
 // Helper to format time "MM:SS"
 const formatTime = (seconds) => {
@@ -62,6 +63,8 @@ const DiagnosticAptitude = () => {
 
   const currentQ = questions[currentIndex];
   const isLastQuestion = currentIndex === questions.length - 1;
+
+  proctorManager.setCurrentContext("Aptitude", currentIndex + 1);
 
   return (
     <div className="test-container">

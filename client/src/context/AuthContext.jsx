@@ -50,11 +50,20 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  const updateUserCollege = (collegeId, collegeName, inviteCode) => {
+    setUser((prev) => ({
+      ...prev,
+      collegeId,
+      collegeName,
+      inviteCode
+    }));
+  };
+
   const isAuthenticated = !!user;
 
   return (
     <AuthContext.Provider
-      value={{ user, login, register, logout, isAuthenticated, loading }}
+      value={{ user, login, register, logout, updateUserCollege, isAuthenticated, loading }}
     >
       {children}
     </AuthContext.Provider>

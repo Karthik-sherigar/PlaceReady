@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const Admin = require("../models/Admin");
 
 // Generate JWT
 const generateToken = (id) => {
@@ -11,7 +12,7 @@ const generateToken = (id) => {
 // @access  Public
 const register = async (req, res) => {
   try {
-    const { name, email, password, branch, targetRole } = req.body;
+    const { name, email, password, branch, targetRole, inviteCode } = req.body;
 
     // Validate required fields
     if (!name || !email || !password) {
@@ -28,6 +29,21 @@ const register = async (req, res) => {
         .json({ message: "An account with this email already exists" });
     }
 
+    let collegeId = null;
+    let collegeName = null;
+    let storedInviteCode = null;
+
+    if (inviteCode && inviteCode.trim() !== "") {
+      const admin = await Admin.findOne({ inviteCode: inviteCode.trim() });
+      if (admin) {
+        collegeId = admin._id;
+        collegeName = admin.collegeName;
+        storedInviteCode = admin.inviteCode;
+      } else {
+        return res.status(400).json({ message: "Invalid invite code. Please check with your college placement cell." });
+      }
+    }
+
     // Create user
     const user = await User.create({
       name,
@@ -35,6 +51,9 @@ const register = async (req, res) => {
       password,
       branch,
       targetRole,
+      collegeId,
+      collegeName,
+      inviteCode: storedInviteCode,
     });
 
     res.status(201).json({
@@ -43,6 +62,8 @@ const register = async (req, res) => {
       email: user.email,
       branch: user.branch,
       targetRole: user.targetRole,
+      collegeId: user.collegeId,
+      collegeName: user.collegeName,
       token: generateToken(user._id),
     });
   } catch (error) {
@@ -87,6 +108,9 @@ const login = async (req, res) => {
       email: user.email,
       branch: user.branch,
       targetRole: user.targetRole,
+      collegeId: user.collegeId,
+      collegeName: user.collegeName,
+      inviteCode: user.inviteCode,
       token: generateToken(user._id),
     });
   } catch (error) {
@@ -104,8 +128,54 @@ const getMe = async (req, res) => {
     email: req.user.email,
     branch: req.user.branch,
     targetRole: req.user.targetRole,
+    collegeId: req.user.collegeId,
+    collegeName: req.user.collegeName,
+    inviteCode: req.user.inviteCode,
     createdAt: req.user.createdAt,
   });
 };
 
-module.exports = { register, login, getMe };
+// @desc    Link user to a college via invite code
+// @route   POST /api/auth/link-college
+// @access  Private
+const linkCollege = async (req, res) => {
+  try {
+    const { inviteCode } = req.body;
+
+    if (!inviteCode || inviteCode.trim() === "") {
+      return res.status(400).json({ message: "Please provide an invite code" });
+    }
+
+    const user = await User.findById(req.user._id);
+
+    if (user.collegeId) {
+      return res.status(400).json({ message: "Already linked to a college" });
+    }
+
+    const admin = await Admin.findOne({ inviteCode: inviteCode.trim() });
+    if (!admin) {
+      return res.status(400).json({ message: "Invalid invite code. Please check with your placement cell." });
+    }
+
+    user.collegeId = admin._id;
+    user.collegeName = admin.collegeName;
+    user.inviteCode = admin.inviteCode;
+    await user.save();
+
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      branch: user.branch,
+      targetRole: user.targetRole,
+      collegeId: user.collegeId,
+      collegeName: user.collegeName,
+      inviteCode: user.inviteCode,
+      createdAt: user.createdAt,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+module.exports = { register, login, getMe, linkCollege };

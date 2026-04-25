@@ -12,6 +12,20 @@ export const registerUser = async (userData) => {
   return response.data;
 };
 
+// Link college
+export const linkCollege = async (inviteCode) => {
+  const token = localStorage.getItem("token");
+  const response = await axios.post(
+    `${API_URL}/link-college`,
+    { inviteCode },
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  if (response.data) {
+    localStorage.setItem("user", JSON.stringify(response.data));
+  }
+  return response.data;
+};
+
 // Login user
 export const loginUser = async (credentials) => {
   const response = await axios.post(`${API_URL}/login`, credentials);

@@ -58,6 +58,16 @@ export const DiagnosticProvider = ({ children }) => {
     return () => clearInterval(timerRef.current);
   }, [activeSection]);
 
+  const resetDiagnostic = () => {
+    setAptitudeAnswers({});
+    setDsaAnswers({});
+    setCommunicationAnswers({});
+    setAptitudeTimeLeft(15 * 60);
+    setDsaTimeLeft(20 * 60);
+    setCommunicationTimeLeft(10 * 60);
+    setActiveSection(null);
+  };
+
   const value = {
     aptitudeAnswers,
     updateAptitudeAnswer,
@@ -69,6 +79,7 @@ export const DiagnosticProvider = ({ children }) => {
     dsaTimeLeft,
     communicationTimeLeft,
     setActiveSection,
+    resetDiagnostic,
   };
 
   return (

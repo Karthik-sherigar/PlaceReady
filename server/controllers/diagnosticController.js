@@ -131,6 +131,7 @@ const submitDiagnostic = async (req, res) => {
 
     res.status(201).json({
       message: "Diagnostic evaluated successfully",
+      diagnosticResultId: result._id,
       scores: {
         aptitudeScore,
         dsaScore,
@@ -158,8 +159,47 @@ const getLatestScore = async (req, res) => {
   }
 };
 
+const ProctoringReport = require("../models/ProctoringReport");
+
+// @desc    Get history of all diagnostic attempts
+// @route   GET /api/diagnostic/history
+// @access  Private
+const getDiagnosticHistory = async (req, res) => {
+  try {
+    const results = await DiagnosticResult.find({ userId: req.user._id }).sort({ attemptedAt: -1 }).lean();
+    
+    if (!results || results.length === 0) {
+      return res.json([]);
+    }
+
+    const resultIds = results.map(r => r._id);
+
+    // Fetch proctoring reports matching the result IDs in a single query
+    const proctoringReports = await ProctoringReport.find({
+      diagnosticResultId: { $in: resultIds }
+    }).lean();
+
+    // Create a map for fast lookup
+    const proctorMap = {};
+    proctoringReports.forEach(pr => {
+      proctorMap[pr.diagnosticResultId.toString()] = pr;
+    });
+
+    // Merge trustScore into results
+    const history = results.map(r => ({
+      ...r,
+      trustScore: proctorMap[r._id.toString()] ? proctorMap[r._id.toString()].trustScore : 100,
+    }));
+
+    res.json(history);
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
 module.exports = {
   getQuestions,
   submitDiagnostic,
   getLatestScore,
+  getDiagnosticHistory,
 };

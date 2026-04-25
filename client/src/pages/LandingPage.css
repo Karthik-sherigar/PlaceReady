@@ -1,0 +1,160 @@
+.landing-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-light);
+  font-family: 'Inter', sans-serif;
+  padding: 24px;
+}
+
+.landing-container {
+  max-width: 900px;
+  width: 100%;
+}
+
+.landing-header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.landing-logo {
+  font-size: 42px;
+  font-weight: 800;
+  color: var(--navy);
+  margin: 0 0 12px 0;
+  letter-spacing: -1px;
+}
+
+.landing-subtitle {
+  font-size: 18px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.role-cards {
+  display: flex;
+  gap: 32px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.role-card {
+  flex: 1;
+  min-width: 320px;
+  max-width: 400px;
+  background: white;
+  border-radius: 16px;
+  padding: 40px 32px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border-light);
+  cursor: pointer;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+.role-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+}
+
+.role-icon-wrapper {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+}
+
+.student-icon {
+  background: #eff6ff;
+  color: #3b82f6;
+}
+
+.admin-icon {
+  background: #ecfdf5;
+  color: var(--emerald);
+}
+
+.role-card h2 {
+  font-size: 24px;
+  color: var(--navy);
+  margin: 0 0 16px 0;
+}
+
+.role-card p {
+  color: var(--text-secondary);
+  font-size: 15px;
+  line-height: 1.6;
+  margin: 0 0 32px 0;
+  flex-grow: 1;
+}
+
+.role-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: auto;
+}
+
+.role-btn {
+  flex: 1;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.primary-btn {
+  background: #3b82f6;
+  color: white;
+}
+
+.primary-btn:hover {
+  background: #2563eb;
+}
+
+.secondary-btn {
+  background: white;
+  color: #3b82f6;
+  border: 1px solid #3b82f6;
+}
+
+.secondary-btn:hover {
+  background: #eff6ff;
+}
+
+/* Admin Theme Buttons */
+.primary-btn.admin-theme {
+  background: var(--emerald);
+}
+
+.primary-btn.admin-theme:hover {
+  background: #059669;
+}
+
+.secondary-btn.admin-theme {
+  color: var(--emerald);
+  border-color: var(--emerald);
+}
+
+.secondary-btn.admin-theme:hover {
+  background: #ecfdf5;
+}
+
+@media (max-width: 768px) {
+  .role-cards {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .role-card {
+    width: 100%;
+  }
+}

@@ -28,3 +28,30 @@ export const getLatestScore = async () => {
   });
   return response.data;
 };
+
+// Get diagnostic history
+export const getDiagnosticHistory = async () => {
+  const token = localStorage.getItem("token");
+  const response = await axios.get(`${API_URL}/history`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
+};
+
+// Submit proctoring report
+export const submitProctoringReport = async (reportData) => {
+  const token = localStorage.getItem("token");
+  const response = await axios.post(`http://localhost:5000/api/proctor/report`, reportData, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
+};
+
+// Get proctoring report
+export const getProctoringReport = async (diagnosticResultId) => {
+  const token = localStorage.getItem("token");
+  const response = await axios.get(`http://localhost:5000/api/proctor/report/${diagnosticResultId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
+};

@@ -1,0 +1,344 @@
+.gap-analysis {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 32px;
+}
+
+.header-section h1 {
+  font-size: 28px;
+  color: var(--navy);
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.disclaimer {
+  font-size: 13px;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.last-updated {
+  font-size: 14px;
+  color: var(--text-muted);
+  background: #f8fafc;
+  padding: 8px 16px;
+  border-radius: 8px;
+}
+
+/* Summary Strip */
+.summary-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.summary-card {
+  background: white;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  border: 1px solid var(--border-light);
+}
+
+.card-title {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+
+.readiness-score-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 800;
+  color: white;
+}
+
+.score-high { background: var(--emerald); }
+.score-mid { background: #f59e0b; }
+.score-low { background: #ef4444; }
+
+.stat-val {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--navy);
+}
+
+.stat-val.green { color: var(--emerald); }
+.stat-val.amber { color: #f59e0b; }
+.stat-val.red { color: #ef4444; }
+
+.priority-skill {
+  font-size: 20px;
+  font-weight: 700;
+  color: #ef4444;
+  margin-bottom: 4px;
+  text-transform: capitalize;
+}
+
+/* Charts Grid */
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  margin-bottom: 40px;
+}
+
+.chart-container {
+  background: white;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border-light);
+}
+
+.chart-container h3 {
+  font-size: 18px;
+  color: var(--navy);
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.trend-badges {
+  display: flex;
+  gap: 8px;
+}
+
+.delta-badge {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.delta-badge.up { background: #ecfdf5; color: var(--emerald); }
+.delta-badge.down { background: #fef2f2; color: #ef4444; }
+.delta-badge.neutral { background: #f8fafc; color: #64748b; }
+
+/* Table Section */
+.table-section {
+  background: white;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border-light);
+  margin-bottom: 40px;
+}
+
+.table-filters {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.filter-tab {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border-light);
+  background: white;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.filter-tab.active {
+  background: var(--navy);
+  color: white;
+  border-color: var(--navy);
+}
+
+.readiness-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.readiness-table th {
+  text-align: left;
+  padding: 16px;
+  color: var(--text-muted);
+  font-size: 13px;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.readiness-table td {
+  padding: 16px;
+  border-bottom: 1px solid #f8fafc;
+}
+
+.company-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.gap-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.gap-val {
+  font-weight: 700;
+}
+
+.gap-val.plus { color: var(--emerald); }
+.gap-val.minus { color: #ef4444; }
+
+.status-badge {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 6px;
+}
+
+.status-ready { background: #ecfdf5; color: var(--emerald); }
+.status-almost { background: #fffbeb; color: #f59e0b; }
+.status-not { background: #fef2f2; color: #ef4444; }
+
+.radar-btn {
+  background: none;
+  border: 1px solid var(--border-light);
+  padding: 6px;
+  border-radius: 6px;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+/* Skill Summary */
+.skill-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.skill-card {
+  background: white;
+  padding: 24px;
+  border-radius: 16px;
+  border: 1px solid var(--border-light);
+}
+
+.skill-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.skill-score-main {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--navy);
+}
+
+.insight-line {
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: 12px;
+}
+
+.insight-strong { color: var(--emerald); }
+.insight-track { color: #3b82f6; }
+.insight-gap { color: #f59e0b; }
+.insight-critical { color: #ef4444; }
+
+/* Weak Areas & Action */
+.action-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 32px;
+}
+
+.weak-area-card {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  border-left: 4px solid #ef4444;
+  margin-bottom: 16px;
+}
+
+.priority-callout {
+  background: #fef2f2;
+  border: 1px solid #fee2e2;
+  padding: 24px;
+  border-radius: 16px;
+  text-align: center;
+}
+
+.roadmap-btn {
+  width: 100%;
+  margin-top: 24px;
+  background: var(--emerald);
+  color: white;
+  border: none;
+  padding: 14px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 32px;
+  border-radius: 20px;
+  max-width: 600px;
+  width: 90%;
+  position: relative;
+}
+
+.close-modal {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  cursor: pointer;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .summary-strip, .charts-grid, .skill-summary-grid, .action-grid {
+    grid-template-columns: 1fr;
+  }
+}

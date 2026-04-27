@@ -9,6 +9,14 @@ class ProctoringManager {
     this.warningCallback = null;
     this.currentSection = "Setup";
     this.currentQuestion = 0;
+
+    // Bind event listeners once in constructor
+    this.handleVisibilityChange = this.handleVisibilityChange.bind(this);
+    this.handleBlur = this.handleBlur.bind(this);
+    this.handleFullscreenChange = this.handleFullscreenChange.bind(this);
+    this.handleKeyDown = this.handleKeyDown.bind(this);
+    this.handleContextMenu = this.handleContextMenu.bind(this);
+    this.handleResize = this.handleResize.bind(this);
   }
 
   // Called from React to initialize callbacks and video ref
@@ -28,14 +36,6 @@ class ProctoringManager {
     this.startedAt = new Date();
     this.violations = [];
     this.snapshots = [];
-
-    // Bind event listeners
-    this.handleVisibilityChange = this.handleVisibilityChange.bind(this);
-    this.handleBlur = this.handleBlur.bind(this);
-    this.handleFullscreenChange = this.handleFullscreenChange.bind(this);
-    this.handleKeyDown = this.handleKeyDown.bind(this);
-    this.handleContextMenu = this.handleContextMenu.bind(this);
-    this.handleResize = this.handleResize.bind(this);
 
     document.addEventListener("visibilitychange", this.handleVisibilityChange);
     window.addEventListener("blur", this.handleBlur);
@@ -76,6 +76,7 @@ class ProctoringManager {
     };
     
     this.violations.push(violation);
+    console.warn(`[Proctoring] Violation Detected: ${type}`, violation);
 
     if (this.warningCallback) {
       this.warningCallback(violation, this.violations.length, customMessage);

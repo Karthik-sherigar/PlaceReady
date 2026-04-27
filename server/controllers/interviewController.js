@@ -31,7 +31,7 @@ const chatInterview = async (req, res) => {
       return res.status(400).json({ message: "Interview already completed" });
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-preview-04-17" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     // Build chat history
     let history = [

@@ -1,9 +1,10 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDiagnostic } from "../context/DiagnosticContext";
 import { getDiagnosticQuestions, submitDiagnostic, submitProctoringReport } from "../services/diagnosticService";
-import { Timer, Mic, Square, RotateCcw, AlertTriangle } from "lucide-react";
+import { Timer } from "lucide-react";
 import { proctorManager } from "../utils/ProctoringManager";
+import LiveCameraPreview from "../components/LiveCameraPreview";
 
 const formatTime = (seconds) => {
   const m = Math.floor(seconds / 60).toString().padStart(2, "0");
@@ -29,12 +30,17 @@ const DiagnosticCommunication = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // Initialize answer from context when questions load
+  const [answer, setAnswer] = useState("");
+  const [initialized, setInitialized] = useState(false);
 
-  // Speech Recognition States
-  const [isSupported, setIsSupported] = useState(true);
-  const [isRecording, setIsRecording] = useState(false);
-  const [transcript, setTranscript] = useState("");
-  const recognitionRef = useRef(null);
+  // Set initial answer once questions are loaded
+  useEffect(() => {
+    if (questions.length > 0 && !initialized) {
+      setAnswer(communicationAnswers[questions[0]._id] || "");
+      setInitialized(true);
+    }
+  }, [questions, initialized, communicationAnswers]);
 
   useEffect(() => {
     setActiveSection("communication");
@@ -49,129 +55,56 @@ const DiagnosticCommunication = () => {
       }
     };
     fetchQ();
-
-    // Check Speech Recognition support
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      setIsSupported(false);
-    } else {
-      const recognition = new SpeechRecognition();
-      recognition.continuous = true;
-      recognition.interimResults = true;
-      recognition.lang = "en-IN";
-
-      recognition.onresult = (event) => {
-        let finalTranscript = "";
-        let interimTranscript = "";
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
-          if (event.results[i].isFinal) {
-            finalTranscript += event.results[i][0].transcript;
-          } else {
-            interimTranscript += event.results[i][0].transcript;
-          }
-        }
-        setTranscript((prev) => prev + finalTranscript + interimTranscript);
-      };
-
-      recognition.onerror = (event) => {
-        console.error("Speech recognition error", event.error);
-        if (event.error !== "no-speech") {
-          setIsRecording(false);
-        }
-      };
-
-      recognition.onend = () => {
-        // If it was supposed to be recording but stopped (e.g. timeout), restart it
-        if (isRecording) {
-            // we will let the user manage start/stop to avoid loops
-            setIsRecording(false);
-        }
-      };
-
-      recognitionRef.current = recognition;
-    }
   }, [setActiveSection]);
-
-  // Load existing transcript when question changes
-  useEffect(() => {
-    if (questions.length > 0) {
-      const currentQId = questions[currentIndex]._id;
-      setTranscript(communicationAnswers[currentQId] || "");
-      if (isRecording && recognitionRef.current) {
-        recognitionRef.current.stop();
-        setIsRecording(false);
-      }
-    }
-  }, [currentIndex, questions, communicationAnswers]);
 
   // Auto-submit if time runs out
   useEffect(() => {
     if (communicationTimeLeft === 0 && questions.length > 0) {
       handleSubmitAll();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [communicationTimeLeft, questions.length]);
 
-  const toggleRecording = () => {
-    if (!recognitionRef.current) return;
-    if (isRecording) {
-      recognitionRef.current.stop();
-      setIsRecording(false);
-      // Save current transcript
-      const currentQ = questions[currentIndex];
-      updateCommunicationAnswer(currentQ._id, transcript);
-    } else {
-      recognitionRef.current.start();
-      setIsRecording(true);
-      // Clear transcript if starting fresh
-      if (!transcript) {
-        setTranscript("");
-      }
+  // Save current answer and navigate
+  const saveAndGo = (nextIndex) => {
+    if (questions.length > 0) {
+      updateCommunicationAnswer(questions[currentIndex]._id, answer);
     }
+    // Load the next question's saved answer (or blank)
+    const savedAnswer = communicationAnswers[questions[nextIndex]._id] || "";
+    setAnswer(savedAnswer);
+    setCurrentIndex(nextIndex);
   };
 
-  const handleRerecord = () => {
-    setTranscript("");
-    const currentQ = questions[currentIndex];
-    updateCommunicationAnswer(currentQ._id, "");
-  };
-
-  const handleNext = () => {
-    if (isRecording) toggleRecording();
-    const currentQ = questions[currentIndex];
-    updateCommunicationAnswer(currentQ._id, transcript);
-    setCurrentIndex((prev) => prev + 1);
-  };
-
-  const handlePrev = () => {
-    if (isRecording) toggleRecording();
-    const currentQ = questions[currentIndex];
-    updateCommunicationAnswer(currentQ._id, transcript);
-    setCurrentIndex((prev) => prev - 1);
-  };
+  const handleNext = () => saveAndGo(currentIndex + 1);
+  const handlePrev = () => saveAndGo(currentIndex - 1);
 
   const handleSubmitAll = async () => {
-    if (isRecording) toggleRecording();
     if (questions.length > 0) {
       const currentQ = questions[currentIndex];
-      updateCommunicationAnswer(currentQ._id, transcript);
+      updateCommunicationAnswer(currentQ._id, answer);
     }
 
     setIsSubmitting(true);
     setActiveSection(null); // stop timers
     proctorManager.stop();
     try {
+      // Small delay to ensure state updates propagate
+      const currentAnswers = { ...communicationAnswers };
+      if (questions.length > 0) {
+        currentAnswers[questions[currentIndex]._id] = answer;
+      }
+
       const diagResponse = await submitDiagnostic({
         aptitudeAnswers,
         dsaAnswers,
-        communicationAnswers,
+        communicationAnswers: currentAnswers,
       });
       
       const diagId = diagResponse.diagnosticResultId;
-
       const proctorPayload = proctorManager.getReportPayload(diagId, false);
       await submitProctoringReport(proctorPayload);
 
-      // Redirect to report
       navigate("/diagnostic/report");
     } catch (error) {
       console.error("Failed to submit diagnostic/proctoring", error);
@@ -180,13 +113,13 @@ const DiagnosticCommunication = () => {
     }
   };
 
-  if (loading) return <div>Loading communication questions...</div>;
+  if (loading) return <div className="auth-loading"><div className="spinner"></div></div>;
   if (!questions || questions.length === 0) return <div>No communication questions found.</div>;
 
   const currentQ = questions[currentIndex];
   const isLastQuestion = currentIndex === questions.length - 1;
-  const wordCount = transcript.trim().split(/\s+/).filter((w) => w.length > 0).length;
-  const strictCanProceed = wordCount >= MIN_WORDS;
+  const wordCount = answer.trim().split(/\s+/).filter((w) => w.length > 0).length;
+  const canProceed = wordCount >= MIN_WORDS;
 
   proctorManager.setCurrentContext("Communication", currentIndex + 1);
 
@@ -203,18 +136,11 @@ const DiagnosticCommunication = () => {
       )}
 
       <div className="test-container">
-        {!isSupported && (
-          <div className="setup-warning" style={{ color: "#b91c1c", borderColor: "#fecaca", background: "#fef2f2", marginBottom: "16px" }}>
-            <AlertTriangle size={18} />
-            Voice input requires Google Chrome or Microsoft Edge. Please switch browsers or your answer cannot be recorded.
-          </div>
-        )}
-
         <div className="test-header">
           <div className="test-title-area">
             <h2>Communication Section</h2>
             <span className="test-instruction">
-              Speak clearly into your microphone. Minimum 30 words required per answer.
+              Type your response clearly. Minimum 30 words required.
             </span>
           </div>
           <div className={`test-timer ${communicationTimeLeft < 60 ? "timer-warning" : ""}`}>
@@ -225,52 +151,26 @@ const DiagnosticCommunication = () => {
 
         <div className="question-card">
           <div className="question-meta">Question {currentIndex + 1} of {questions.length}</div>
-          <div className="question-text">{currentQ.prompt}</div>
+          <div className="question-text" style={{ fontSize: "1.2rem", color: "var(--navy)", marginBottom: "2rem" }}>
+            {currentQ.prompt}
+          </div>
 
-          <div className="voice-recorder-area">
-            {/* Mic Button */}
-            {!isRecording && transcript.length >= 5 ? (
-              <button className="mic-btn mic-btn--done" disabled>
-                <Mic size={32} />
-                <span>Answer Recorded</span>
-              </button>
-            ) : (
-              <button 
-                className={`mic-btn ${isRecording ? "mic-btn--recording" : "mic-btn--idle"}`} 
-                onClick={toggleRecording}
-                disabled={!isSupported}
-              >
-                {isRecording ? <Square size={32} /> : <Mic size={32} />}
-                <span>{isRecording ? "Listening..." : "Click to Start Speaking"}</span>
-              </button>
-            )}
-
-            {/* Animation / Waveform placeholder */}
-            {isRecording && (
-              <div className="waveform-container">
-                <div className="bar"></div>
-                <div className="bar"></div>
-                <div className="bar"></div>
-                <div className="bar"></div>
-                <div className="bar"></div>
-              </div>
-            )}
-
-            {/* Re-record option */}
-            {!isRecording && transcript.length >= 5 && (
-              <button className="rerecord-btn" onClick={handleRerecord}>
-                <RotateCcw size={16} /> Re-record
-              </button>
-            )}
-
-            {/* Live Transcription Box */}
-            <div className="transcription-box">
-              <p>{transcript || "Your transcribed answer will appear here..."}</p>
-            </div>
+          <div className="writing-area">
+            <textarea
+              key={currentIndex}
+              className="comm-textarea"
+              placeholder="Start typing your response here..."
+              value={answer}
+              onChange={(e) => setAnswer(e.target.value)}
+              spellCheck="true"
+              autoFocus
+            />
             
-            <span className={`char-count ${!strictCanProceed ? "invalid" : ""}`}>
-              {wordCount} / {MIN_WORDS} words minimum
-            </span>
+            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "12px" }}>
+              <span className={`char-count ${!canProceed ? "invalid" : ""}`} style={{ fontWeight: "600" }}>
+                {wordCount} / {MIN_WORDS} words minimum
+              </span>
+            </div>
           </div>
         </div>
 
@@ -280,15 +180,17 @@ const DiagnosticCommunication = () => {
           </button>
           
           {isLastQuestion ? (
-            <button className="nav-btn nav-btn--submit" onClick={handleSubmitAll} disabled={!strictCanProceed}>
+            <button className="nav-btn nav-btn--submit" onClick={handleSubmitAll} disabled={!canProceed}>
               Submit Final Test
             </button>
           ) : (
-            <button className="nav-btn nav-btn--next" onClick={handleNext} disabled={!strictCanProceed}>
+            <button className="nav-btn nav-btn--next" onClick={handleNext} disabled={!canProceed}>
               Next Question
             </button>
           )}
         </div>
+        
+        <LiveCameraPreview />
       </div>
     </>
   );

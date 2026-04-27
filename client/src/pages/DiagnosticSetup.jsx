@@ -1,9 +1,17 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Camera, Mic, Maximize, AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
+import { useDiagnostic } from "../context/DiagnosticContext";
 
 const DiagnosticSetup = () => {
   const navigate = useNavigate();
+  const { startWebcam, webcamStream, resetDiagnostic } = useDiagnostic();
+  
+  // Reset all previous test data when entering setup
+  useEffect(() => {
+    resetDiagnostic();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   
   const [camStatus, setCamStatus] = useState("checking"); // checking, ready, error
   const [micStatus, setMicStatus] = useState("checking");
@@ -15,7 +23,6 @@ const DiagnosticSetup = () => {
   const analyserRef = useRef(null);
   const dataArrayRef = useRef(null);
   const rafIdRef = useRef(null);
-  const streamRef = useRef(null);
   const [audioLevel, setAudioLevel] = useState(0);
 
   // 1. Browser Check
@@ -41,8 +48,7 @@ const DiagnosticSetup = () => {
   useEffect(() => {
     const initMedia = async () => {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-        streamRef.current = stream;
+        const stream = await startWebcam();
         
         // Video
         if (videoRef.current) {
@@ -73,10 +79,7 @@ const DiagnosticSetup = () => {
         updateLevel();
 
       } catch (err) {
-        if (err.name === "NotAllowedError") {
-          setCamStatus("error");
-          setMicStatus("error");
-        } else if (err.name === "NotFoundError") {
+        if (err.name === "NotAllowedError" || err.name === "NotFoundError") {
           setCamStatus("error");
           setMicStatus("error");
         }
@@ -90,11 +93,8 @@ const DiagnosticSetup = () => {
       if (audioContextRef.current && audioContextRef.current.state !== "closed") {
         audioContextRef.current.close();
       }
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop());
-      }
     };
-  }, []);
+  }, [startWebcam]);
 
   const handleEnterFullscreen = async () => {
     try {

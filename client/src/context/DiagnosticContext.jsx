@@ -14,6 +14,7 @@ export const DiagnosticProvider = ({ children }) => {
   const [aptitudeAnswers, setAptitudeAnswers] = useState({});
   const [dsaAnswers, setDsaAnswers] = useState({});
   const [communicationAnswers, setCommunicationAnswers] = useState({});
+  const [webcamStream, setWebcamStream] = useState(null);
   
   // Timers in seconds
   const [aptitudeTimeLeft, setAptitudeTimeLeft] = useState(15 * 60);
@@ -68,6 +69,25 @@ export const DiagnosticProvider = ({ children }) => {
     setActiveSection(null);
   };
 
+  const startWebcam = async () => {
+    if (webcamStream) return webcamStream;
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      setWebcamStream(stream);
+      return stream;
+    } catch (err) {
+      console.error("Webcam access failed:", err);
+      throw err;
+    }
+  };
+
+  const stopWebcam = () => {
+    if (webcamStream) {
+      webcamStream.getTracks().forEach(track => track.stop());
+      setWebcamStream(null);
+    }
+  };
+
   const value = {
     aptitudeAnswers,
     updateAptitudeAnswer,
@@ -80,6 +100,9 @@ export const DiagnosticProvider = ({ children }) => {
     communicationTimeLeft,
     setActiveSection,
     resetDiagnostic,
+    webcamStream,
+    startWebcam,
+    stopWebcam,
   };
 
   return (

@@ -12,33 +12,16 @@ const DiagnosticLayout = () => {
   const isReport = location.pathname.includes("report");
   
   const videoRef = useRef(null);
-  const proctoringStreamRef = useRef(null);
   const [warning, setWarning] = useState(null);
 
-  const { resetDiagnostic } = useDiagnostic();
+  const { resetDiagnostic, webcamStream, startWebcam, stopWebcam } = useDiagnostic();
 
-  // Initialize Proctoring Manager
+  // Initialize webcam stream and start proctoring
   useEffect(() => {
-    if (isSetup || isReport) return; // Do not start proctoring on setup or report
+    if (isSetup || isReport) return;
     
-    // Request webcam stream specifically for the hidden proctoring video
-    const initHiddenStream = async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        proctoringStreamRef.current = stream;
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-        }
-      } catch (err) {
-        console.error("Failed to re-acquire proctoring webcam stream", err);
-      }
-    };
-    initHiddenStream();
-
     const handleWarning = (violation, count, message) => {
       if (count >= 3) {
-        // Auto-submit logic is handled in context or by forcing navigation,
-        // but here we just show the final warning. The submission is triggered in context.
         setWarning({
           title: "Test Auto-Submitted",
           message: "Your test has been automatically submitted due to multiple violations.",
@@ -55,22 +38,44 @@ const DiagnosticLayout = () => {
       }
     };
 
-    proctorManager.init(videoRef, handleWarning);
-    proctorManager.start();
+    const initAll = async () => {
+      // 1. Ensure we have a webcam stream
+      let stream = webcamStream;
+      if (!stream) {
+        try {
+          stream = await startWebcam();
+        } catch (err) {
+          console.error("Proctoring failed to acquire stream", err);
+        }
+      }
+
+      // 2. Attach stream to hidden video element
+      if (stream && videoRef.current) {
+        videoRef.current.srcObject = stream;
+        // Wait for video to be ready
+        await new Promise((resolve) => {
+          if (videoRef.current.readyState >= 2) {
+            resolve();
+          } else {
+            videoRef.current.onloadeddata = resolve;
+          }
+        });
+      }
+
+      // 3. Start proctoring with the now-ready video ref
+      proctorManager.init(videoRef, handleWarning);
+      if (!proctorManager.isActive) {
+        proctorManager.start();
+      }
+    };
+
+    initAll();
 
     return () => {
       proctorManager.stop();
-      // Stop proctoring camera stream tracks
-      if (proctoringStreamRef.current) {
-        proctoringStreamRef.current.getTracks().forEach(track => track.stop());
-        proctoringStreamRef.current = null;
-      }
-      if (videoRef.current && videoRef.current.srcObject) {
-        videoRef.current.srcObject.getTracks().forEach(track => track.stop());
-        videoRef.current.srcObject = null;
-      }
     };
-  }, [isSetup, isReport]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSetup, isReport, webcamStream]);
 
   const handleReturnToTest = async () => {
     if (warning?.message.includes("fullscreen")) {
@@ -87,6 +92,7 @@ const DiagnosticLayout = () => {
   const handleReturnToDashboard = () => {
     proctorManager.stop();
     resetDiagnostic();
+    stopWebcam();
     setWarning(null);
     navigate("/dashboard");
   };

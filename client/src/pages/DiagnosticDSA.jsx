@@ -4,6 +4,7 @@ import { useDiagnostic } from "../context/DiagnosticContext";
 import { getDiagnosticQuestions } from "../services/diagnosticService";
 import { Timer } from "lucide-react";
 import { proctorManager } from "../utils/ProctoringManager";
+import LiveCameraPreview from "../components/LiveCameraPreview";
 
 // Helper to format time "MM:SS"
 const formatTime = (seconds) => {
@@ -126,6 +127,8 @@ const DiagnosticDSA = () => {
           </button>
         )}
       </div>
+      
+      <LiveCameraPreview />
     </div>
   );
 };

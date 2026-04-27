@@ -19,7 +19,7 @@ const generateRoadmap = async (req, res) => {
     }
 
     // 2. Get diagnostic result
-    const diagnostic = await DiagnosticResult.findOne({ userId }).sort({ createdAt: -1 });
+    const diagnostic = await DiagnosticResult.findOne({ userId }).sort({ attemptedAt: -1 });
 
     let strengths = "";
     let weaknesses = "";
@@ -35,8 +35,8 @@ const generateRoadmap = async (req, res) => {
       weaknesses = "Unknown (No diagnostic taken)";
     }
 
-    // 3. Prompt Gemini
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-preview-04-17" });
+    // 3. Prompt Gemini (with retry + fallback model)
+    const MODELS = [ "gemini-flash-latest", "gemini-2.5-flash", "gemini-2.5-pro", "gemini-3-pro-preview", "gemini-2.0-flash", "gemini-1.5-flash-latest", "gemini-1.5-flash-8b"];
     const prompt = `
       You are an expert career counselor and placement mentor. Create a highly structured study roadmap for a student aiming for a ${targetRole} role.
       Their weaknesses are: ${weaknesses}.
@@ -60,11 +60,40 @@ const generateRoadmap = async (req, res) => {
       Provide 4 to 5 modules, focusing first on their weaknesses.
     `;
 
-    const result = await model.generateContent(prompt);
-    let text = result.response.text();
-    text = text.replace(/```json/g, "").replace(/```/g, "").trim();
+    let text = null;
+    let lastError = null;
 
-    const parsedData = JSON.parse(text);
+    for (const modelName of MODELS) {
+      for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+          console.log(`[Roadmap] Trying ${modelName} (attempt ${attempt + 1})...`);
+          const model = genAI.getGenerativeModel({ model: modelName });
+          const result = await model.generateContent(prompt);
+          text = result.response.text();
+          break; // success
+        } catch (err) {
+          lastError = err;
+          if (err.status === 429) {
+            // Wait before retry
+            const waitMs = (attempt + 1) * 10000; // 10s, 20s
+            console.log(`[Roadmap] Rate limited on ${modelName}, waiting ${waitMs / 1000}s...`);
+            await new Promise(r => setTimeout(r, waitMs));
+          } else {
+            break; // non-rate-limit error, try next model
+          }
+        }
+      }
+      if (text) break; // got a response, stop trying models
+    }
+
+    if (!text) {
+      throw lastError || new Error("All models failed to generate content");
+    }
+
+    // Extract JSON from response
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error("AI response was not valid JSON");
+    const parsedData = JSON.parse(jsonMatch[0]);
 
     const newRoadmap = await Roadmap.create({
       userId,
@@ -76,7 +105,15 @@ const generateRoadmap = async (req, res) => {
 
   } catch (error) {
     console.error("Error generating roadmap:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
+    
+    // Give user actionable feedback
+    if (error.status === 429) {
+      return res.status(429).json({ 
+        message: "AI quota temporarily exhausted. Please wait a few minutes and try again.",
+        error: "RATE_LIMIT"
+      });
+    }
+    res.status(500).json({ message: "Server error during roadmap generation", error: error.message });
   }
 };
 

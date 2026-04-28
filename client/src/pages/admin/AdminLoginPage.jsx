@@ -39,7 +39,7 @@ const AdminLoginPage = () => {
         <div className="auth-glow" style={{ background: "radial-gradient(circle, rgba(16, 185, 129, 0.2) 0%, transparent 60%)" }}></div>
         <div className="auth-card">
           <div className="auth-header">
-            <h1 className="auth-logo">PlaceReady Admin</h1>
+            <h1 className="auth-logo">Apex Admin</h1>
             <p className="auth-subtitle">Log in to college portal</p>
           </div>
 

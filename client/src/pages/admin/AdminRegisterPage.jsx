@@ -69,7 +69,7 @@ const AdminRegisterPage = () => {
             
             <h2 style={{ color: "var(--navy)", marginBottom: "8px" }}>College Registered!</h2>
             <p style={{ color: "var(--text-secondary)", marginBottom: "24px" }}>
-              Welcome to PlaceReady, {successData.collegeName}.
+              Welcome to Apex, {successData.collegeName}.
             </p>
 
             <div style={{ background: "#f8fafc", padding: "24px", borderRadius: "8px", border: "1px dashed #cbd5e1", marginBottom: "24px" }}>
@@ -106,7 +106,7 @@ const AdminRegisterPage = () => {
         <div className="auth-glow" style={{ background: "radial-gradient(circle, rgba(16, 185, 129, 0.2) 0%, transparent 60%)" }}></div>
         <div className="auth-card" style={{ maxWidth: "480px" }}>
           <div className="auth-header">
-            <h1 className="auth-logo">PlaceReady Admin</h1>
+            <h1 className="auth-logo">Apex Admin</h1>
             <p className="auth-subtitle">Register your college</p>
           </div>
 

@@ -55,7 +55,7 @@ const AdminLayout = () => {
         <div className="sidebar-top">
           <div className="sidebar-brand">
             <span className="brand-icon">PR</span>
-            <span className="brand-text">PlaceReady</span>
+            <span className="brand-text">Apex</span>
           </div>
           <div style={{ padding: "0 24px", marginBottom: "20px", fontSize: "12px", color: "var(--emerald)", textTransform: "uppercase", fontWeight: "bold" }}>
             Admin Portal
@@ -102,7 +102,7 @@ const AdminLayout = () => {
         <div className="drawer-header">
           <div className="sidebar-brand">
             <span className="brand-icon">PR</span>
-            <span className="brand-text">PlaceReady</span>
+            <span className="brand-text">Apex</span>
           </div>
           <button className="drawer-close" onClick={closeMobileDrawer}>
             <X size={22} />

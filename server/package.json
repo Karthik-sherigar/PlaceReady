@@ -1,5 +1,5 @@
 {
-  "name": "apex-server",
+  "name": "Apex-server",
   "version": "1.0.0",
   "description": "Apex backend API server",
   "main": "server.js",

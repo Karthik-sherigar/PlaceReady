@@ -1,5 +1,5 @@
 {
-  "name": "apex",
+  "name": "Apex",
   "version": "1.0.0",
   "description": "Apex Root - Run client and server concurrently",
   "scripts": {

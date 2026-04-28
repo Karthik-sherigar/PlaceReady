@@ -9,7 +9,7 @@ const LandingPage = () => {
     <div className="landing-page">
       <div className="landing-container">
         <div className="landing-header">
-          <h1 className="landing-logo">PlaceReady</h1>
+          <h1 className="landing-logo">Apex</h1>
           <p className="landing-subtitle">Select your portal to continue</p>
         </div>
 

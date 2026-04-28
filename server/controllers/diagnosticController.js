@@ -51,13 +51,12 @@ const calculateMCQScore = (userAnswers, questions) => {
 const evaluateCommunication = async (userAnswers) => {
   // userAnswers is expected to be an object: { [promptId]: "Student answer text..." }
   let totalScore = 0;
-  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+  const MODELS = ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-3-pro-preview", "gemini-2.0-flash", "gemini-flash-latest", "gemini-1.5-flash-latest", "gemini-1.5-flash-8b"];
 
   for (const prompt of communicationPrompts) {
     const answer = userAnswers[prompt.id];
 
     if (!answer || answer.trim().length < 10) {
-      // If answer is empty or too short, score is 0
       totalScore += 0;
       continue;
     }
@@ -76,22 +75,35 @@ Return this exact JSON:
   "feedback": "<one sentence of constructive feedback>"
 }`;
 
-    try {
-      const result = await model.generateContent([
-        { text: sysInstruction },
-        { text: promptText }
-      ]);
-      const responseText = result.response.text();
-      
-      // Clean potential markdown blocks
-      const cleanJsonStr = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
-      const evaluation = JSON.parse(cleanJsonStr);
-      
-      const score = Number(evaluation.score);
-      totalScore += isNaN(score) ? 50 : score;
-    } catch (error) {
-      console.error(`Gemini Evaluation failed for ${prompt.id}:`, error.message);
-      // Fallback to neutral score 50
+    let scored = false;
+    for (const modelName of MODELS) {
+      try {
+        const model = genAI.getGenerativeModel({ model: modelName });
+        const result = await model.generateContent([
+          { text: sysInstruction },
+          { text: promptText }
+        ]);
+        const responseText = result.response.text();
+        
+        const cleanJsonStr = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
+        const jsonMatch = cleanJsonStr.match(/\{[\s\S]*\}/);
+        const evaluation = JSON.parse(jsonMatch ? jsonMatch[0] : cleanJsonStr);
+        
+        const score = Number(evaluation.score);
+        totalScore += isNaN(score) ? 50 : score;
+        scored = true;
+        break;
+      } catch (error) {
+        console.error(`[Diagnostic] ${modelName} failed for ${prompt.id}:`, error.message);
+        if (error.status === 429 || error.status === 503) {
+          await new Promise(r => setTimeout(r, 3000));
+          continue;
+        }
+        continue;
+      }
+    }
+    if (!scored) {
+      console.error(`[Diagnostic] All models failed for ${prompt.id}, using fallback score 50`);
       totalScore += 50;
     }
   }

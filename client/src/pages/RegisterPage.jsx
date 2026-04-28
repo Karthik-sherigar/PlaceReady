@@ -51,7 +51,7 @@ const RegisterPage = () => {
         <div className="auth-glow"></div>
         <div className="auth-card" style={{ maxWidth: "480px" }}>
           <div className="auth-header">
-            <h1 className="auth-logo">PlaceReady</h1>
+            <h1 className="auth-logo">Apex</h1>
             <p className="auth-subtitle">Create your student account</p>
           </div>
 

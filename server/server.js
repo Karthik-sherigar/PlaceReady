@@ -30,6 +30,12 @@ app.use("/api/interview", require("./routes/interviewRoutes"));
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+// Export the Express API for Vercel Serverless Functions
+module.exports = app;
+
+// Only start the server locally if not in Vercel
+if (process.env.NODE_ENV !== "production" && !process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}

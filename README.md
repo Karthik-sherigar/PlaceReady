@@ -1,4 +1,4 @@
-# PlaceReady
+# Apex
 
 A full-stack web application built with the MERN stack.
 
@@ -15,7 +15,7 @@ A full-stack web application built with the MERN stack.
 ## Project Structure
 
 ```
-PlaceReady/
+Apex/
 ├── client/          # React frontend (Vite)
 │   └── src/
 │       ├── pages/
